@@ -1,6 +1,7 @@
 package main
 
 import (
+	"eventbackendproject/db"
 	"eventbackendproject/model"
 	"net/http"
 
@@ -8,32 +9,37 @@ import (
 )
 
 func main() {
-	// CREATING SERVER INSTANCE
+	db.InitDB()
 	server := gin.Default()
-	// IMPLEMENTING GET METHOD TO GET THE EVENTS
 	server.GET("/events", getEvents)
-	// IMPLEMENTING POST METHOD TO CREATE A NEW EVENT
 	server.POST("/events", createEvent)
-	// RUNNING THE SERVER ON PORT 8080 ON LOCAL HOST
-	server.Run(":8080")
+	server.Run(":8080") // local host 8080
+
 }
 
-// IMPLEMENTING getEvents FUNCTION
-func getEvents(cntxt *gin.Context) {
-	events := model.GetAllEvents()
-	cntxt.JSON(http.StatusOK, gin.H{"message": "THis is a GET request", "events": events})
-}
-
-// IMPLEMENATING createEvent FUNCTION
-func createEvent(cntxt *gin.Context) {
-	var event model.Event
-	err := cntxt.ShouldBindJSON(&event)
+func getEvents(context *gin.Context) {
+	events, err := model.GetAllEvents()
 	if err != nil {
-		cntxt.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse the data properly"})
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Coudl not fetch events"})
+		return
+	}
+	context.JSON(http.StatusOK, gin.H{"message": "Hello this is a GET request", "event": events})
+}
+
+func createEvent(context *gin.Context) {
+	var event model.Event
+	err := context.ShouldBindJSON(&event)
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse data properly"})
 		return
 	}
 	event.ID = 1
 	event.UserID = 1
-	event.Save()
-	cntxt.JSON(http.StatusCreated, gin.H{"message": "This is a POST Request, event successfully createed", "event": event})
+	err = event.Save()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message": "Could not save the data"})
+		return
+	}
+	context.JSON(http.StatusCreated, gin.H{"message": "New event created", "event": event})
+
 }
