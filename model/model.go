@@ -6,13 +6,13 @@ type Event struct {
 	// EVENT ID
 	ID int
 	// EVENT NAME
-	Name string
+	Name string `binding:"required"`
 	// EVENT DESCRIPTION
-	Description string
+	Description string `binding:"required"`
 	// EVENT LOCATION
-	Location string
+	Location string `binding:"required"`
 	// EVENT DATE TIME
-	DateTime time.Time
+	DateTime time.Time `binding:"required"`
 	// EVENT CREATOR USER ID
 	UserID int
 }
