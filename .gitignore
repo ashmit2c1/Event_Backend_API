@@ -4,3 +4,4 @@
 *go.mod
 *api.db
 *go.sum 
+*.gitignore
